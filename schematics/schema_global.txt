@@ -1,0 +1,202 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║         HARMONOGRAPHE DE SABLE — Schéma Global ASCII                    ║
+║                     (Vue de principe)                                    ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════
+BLOC ALIMENTATION
+═══════════════════════════════════════════════════════════════
+
+  220V AC ─────┬──────────────────────────────────────────────┐
+               │                                              │
+         ┌─────▼──────────────┐                    ┌──────────▼──────────┐
+         │  Meanwell           │                    │  Meanwell           │
+         │  LRS-240-24         │                    │  RS-15-5            │
+         │  24V DC / 10A       │                    │  5V DC / 3A         │
+         └─────┬──────────────┘                    └──────────┬──────────┘
+               │                                              │
+               │ +24V (câble rouge 1mm²)                      │ +5V (câble rouge 0.5mm²)
+               │                                              │
+               ▼                                              ▼
+  ┌────────────────────────┐                    ┌─────────────────────────┐
+  │  Shapeoko CNC Board    │                    │  Arduino Mega 2560 (#2) │
+  │  (avec GRBL + Mega #1) │                    │  Capteurs + Courbes     │
+  │                        │                    │                         │
+  │  ┌──────────┐          │                    │  ┌────────┐             │
+  │  │ DRV8825  │←─────────│──── Step/Dir ──────│  │        │             │
+  │  │ Moteur X │          │                    │  │        │             │
+  │  └──────────┘          │                    │  │        │             │
+  │  ┌──────────┐          │                    │  │  MEGA  │             │
+  │  │ DRV8825  │          │                    │  │  #2    │             │
+  │  │ Moteur Y │          │                    │  │        │             │
+  │  └──────────┘          │                    │  └────────┘             │
+  │                        │                    │                         │
+  │  RX ←──────────────────│────── TX1 Pin18 ───│                         │
+  │  TX ───────────────────│────── RX1 Pin19 ───│ Serial G-code 115200bd  │
+  │       GND ─────────────│─────────────── GND─│ (masse commune !)       │
+  └────────────────────────┘                    └─────────────────────────┘
+               │
+               ▼
+  ┌────────────────────────┐
+  │  Moteurs Shapeoko      │
+  │                        │
+  │  ┌─────┐  ┌─────┐     │
+  │  │NEMA │  │NEMA │     │
+  │  │ 23  │  │ 23  │     │
+  │  │  X  │  │ Y1  │     │
+  │  └─────┘  └─────┘     │
+  │               ┌─────┐  │
+  │               │NEMA │  │
+  │               │ 23  │  │
+  │               │ Y2  │  │
+  │               └─────┘  │
+  └────────────────────────┘
+               │
+               ▼ (Déplacement mécanique XY)
+  ┌────────────────────────┐
+  │  Chariot Shapeoko      │
+  │  + Support Aimant 3D   │
+  │       [N52 Ø50mm]      │ ← AIMANT NÉODYME (permanent)
+  └────────────────────────┘
+               │ Champ magnétique à travers 3mm acrylique
+               ▼
+  ════════════════════════════════════
+    BAC À SABLE (400×400mm)
+    ~~~~~ Sable fin (3mm) ~~~~~~~~~~~~
+                ●  ← BILLE D'ACIER Ø19mm
+  ════════════════════════════════════
+
+
+═══════════════════════════════════════════════════════════════
+DÉTAIL ARDUINO MEGA #2 — CAPTEURS
+═══════════════════════════════════════════════════════════════
+
+  ┌─────────────────────────────────────────────────────┐
+  │              ARDUINO MEGA 2560 (#2)                  │
+  │                                                      │
+  │  [3.3V]──┬─────────────────────────────────────     │
+  │           │  [10kΩ pull-up]                         │
+  │           ├──────────────────── Pin 2 ← DHT22 DATA  │
+  │           │                                         │
+  │           └──┬── DHT22 VCC                          │
+  │              └── MAX9814 VDD                         │
+  │                                                      │
+  │  [5V] ───┬── HC-SR04 VCC                            │
+  │           └── LCD VCC                               │
+  │                                                      │
+  │  [GND] ──┬── DHT22 GND                              │
+  │           ├── HC-SR04 GND                            │
+  │           ├── MAX9814 GND                            │
+  │           └── LCD GND                               │
+  │                                                      │
+  │  Pin 2 ←──────────── DHT22 DATA (+ 10kΩ → 3.3V)   │
+  │  Pin 3 ─────────────→ HC-SR04 TRIG                  │
+  │  Pin 4 ←──────────── HC-SR04 ECHO                   │
+  │  Pin 6 ─────[470Ω]──→ WS2812B DIN                  │
+  │  Pin 7 ←──────────── BOUTON MODE (GND quand appuyé) │
+  │  Pin 8 ─────────────→ BUZZER (+) (GND côté -)       │
+  │  Pin 9 ←──────────── KY-040 CLK                     │
+  │  Pin 10 ←─────────── KY-040 DT                      │
+  │  Pin 11 ←─────────── KY-040 SW                      │
+  │  Pin 13 ────[220Ω]──→ LED statut (+ GND)            │
+  │  Pin 18 (TX1) ──────→ GRBL RX                       │
+  │  Pin 19 (RX1) ←────── GRBL TX                       │
+  │  Pin 20 (SDA) ──────→ LCD SDA (+ GND, 5V)           │
+  │  Pin 21 (SCL) ──────→ LCD SCL                       │
+  │  A0 ←─────────────── MAX9814 OUT                    │
+  │  A1 ←─────────────── POT vitesse (milieu)           │
+  │                       POT : extrémités → GND et 5V  │
+  └─────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════
+DÉTAIL DHT22
+═══════════════════════════════════════════════════════════════
+
+     DHT22
+  ┌──────────────────┐
+  │  1  2  3  4      │
+  └──┬──┬──┬──┘
+     │  │  │
+    3.3V │ GND
+         │
+      Pin 2 Arduino
+         │
+      [10kΩ] ← Pull-up obligatoire
+         │
+       3.3V
+
+  Broche 3 : non connectée
+
+
+═══════════════════════════════════════════════════════════════
+DÉTAIL HC-SR04
+═══════════════════════════════════════════════════════════════
+
+     HC-SR04
+  ┌───────────────────────┐
+  │  VCC  TRIG  ECHO  GND │
+  └───┬────┬────┬─────┘
+      │    │    │
+     5V  Pin3  Pin4   GND
+
+  (Pour Arduino Mega 5V : connexion directe OK)
+  (Pour 3.3V : diviseur de tension sur ECHO obligatoire)
+
+
+═══════════════════════════════════════════════════════════════
+DÉTAIL MAX9814 (Microphone)
+═══════════════════════════════════════════════════════════════
+
+     MAX9814
+  ┌───────────────────────┐
+  │  VDD  GND  OUT  AR    │
+  └───┬────┬────┬────┘
+      │    │    │     (AR = non connecté → gain 40dB)
+     3.3V GND   A0   ← Câble blindé recommandé
+
+  Polarisation : signal AC centré sur VCC/2 ≈ 512 ADC
+
+
+═══════════════════════════════════════════════════════════════
+DÉTAIL LED WS2812B (optionnel)
+═══════════════════════════════════════════════════════════════
+
+  Arduino Pin 6 ──[470Ω]──→ DIN (entrée bande LED)
+
+  5V ──[1000µF]─┬──→ VCC bande LED
+                │
+               GND ──→ GND bande LED
+
+  (Le condensateur 1000µF absorbe les pics de courant)
+  (La résistance 470Ω protège la première LED)
+
+
+═══════════════════════════════════════════════════════════════
+SECTION D'URGENCE
+═══════════════════════════════════════════════════════════════
+
+  +24V ──→ [BOUTON URGENCE NC rouge] ──→ Shapeoko +24V
+
+  En appuyant sur le bouton :
+  - Les moteurs perdent leur alimentation
+  - L'aimant s'arrête instantanément
+  - La bille reste en place dans le sable
+
+  Pour reprendre :
+  - Relâcher le bouton d'urgence
+  - Sur Arduino #2 : appuyer sur bouton MODE
+  - GRBL se réinitialise et le dessin reprend
+
+
+═══════════════════════════════════════════════════════════════
+LÉGENDE DES CÂBLES
+═══════════════════════════════════════════════════════════════
+
+  ══════   Câble puissance 220V AC (3×1.5mm²)
+  ──────   Câble DC (0.5-1mm²)
+  ······   Signal basse tension (0.25mm²)
+  ~~~~~~   Câble blindé (coaxial)
+  ──────→  Sens du flux de données/puissance
+  [X]      Composant passif (résistance, condensateur)
+  (X)      Composant actif (transistor, CI)

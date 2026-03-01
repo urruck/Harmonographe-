@@ -1,0 +1,174 @@
+╔══════════════════════════════════════════════════════════════╗
+║     PINOUT ARDUINO MEGA 2560 — Harmonographe de Sable        ║
+║                  (Arduino #2 — Capteurs)                     ║
+╚══════════════════════════════════════════════════════════════╝
+
+                    ┌──────────────────────────┐
+                    │    ARDUINO MEGA 2560      │
+                    │                           │
+NUMÉRIQUE DROITE    │                           │ NUMÉRIQUE GAUCHE
+                    │                           │
+ ─── NC         ───┤ IOREF             5V  ├───── +5V capteurs (HC-SR04, LCD)
+ ─── RESET      ───┤ RESET           3.3V  ├───── +3.3V capteurs (DHT22, MAX9814)
+ ─── NC         ───┤ 3.3V            GND   ├───── Masse commune
+ ─── +5V        ───┤ 5V              GND   ├───── Masse commune
+ ─── Alim. ext  ───┤ GND             Vin   ├───── Non utilisé (alimentation USB)
+ ─── Alim. ext  ───┤ GND                   │
+                    │                       │
+ ─── NC         ───┤ 0 (RX0) Serial0  13   ├───── LED_STATUS (voyant vert)
+ ─── NC         ───┤ 1 (TX0) Serial0  12   ├───── NC
+ ─── NC         ───┤ 2 (INT0)         11   ├───── ENC_SW  (bouton encodeur)
+ ─── DHT22 DATA ───┤ 2                10   ├───── ENC_DT  (encodeur direction)
+ ─── HC-SR04 TR ───┤ 3                 9   ├───── ENC_CLK (encodeur horloge)
+ ─── HC-SR04 EC ───┤ 4                 8   ├───── BUZZER  (buzzer passif)
+ ─── NC         ───┤ 5                 7   ├───── BTN_MODE (bouton pause)
+ ─── WS2812B    ───┤ 6                 6   ├───── (même pin, vue gauche)
+                    │                       │
+ ─── NC         ───┤ 14 (TX3)         22   ├───── NC (GPIO libres)
+ ─── NC         ───┤ 15 (RX3)         23   ├───── NC
+ ─── NC         ───┤ 16 (TX2)         24   ├───── NC
+ ─── NC         ───┤ 17 (RX2)         25   ├───── NC
+ ─── GRBL TX    ───┤ 18 (TX1) →GRBL  26   ├───── NC
+ ─── GRBL RX    ───┤ 19 (RX1) ←GRBL  27   ├───── NC
+ ─── LCD SDA    ───┤ 20 (SDA)         28   ├───── NC
+ ─── LCD SCL    ───┤ 21 (SCL)         29   ├───── NC
+                    │                       │
+                    │  ANALOGIQUES          │
+                    │                       │
+ ─── MAX9814    ───┤ A0               A8   ├───── NC
+ ─── POT. VIT.  ───┤ A1               A9   ├───── NC
+ ─── NC         ───┤ A2              A10   ├───── NC
+ ─── NC         ───┤ A3              A11   ├───── NC
+ ─── NC         ───┤ A4              A12   ├───── NC
+ ─── NC         ───┤ A5              A13   ├───── NC
+ ─── NC         ───┤ A6              A14   ├───── NC
+ ─── NC         ───┤ A7              A15   ├───── NC
+                    └──────────────────────┘
+
+═══════════════════════════════════════════════════════
+CONNEXIONS DÉTAILLÉES PAR FONCTION
+═══════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────┐
+│ CAPTEUR DHT22 (Temp + Humidité)                             │
+│                                                             │
+│  DHT22 Pin 1 (VCC)  → Arduino 3.3V                         │
+│  DHT22 Pin 2 (DATA) → Arduino Pin 2                        │
+│  DHT22 Pin 2 (DATA) → Arduino 3.3V via [10kΩ] (pull-up)   │
+│  DHT22 Pin 4 (GND)  → Arduino GND                          │
+│                                                             │
+│  Longueur câble max : 2m (au-delà, augmenter résistance)    │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ CAPTEUR HC-SR04 (Distance ultrasonique)                     │
+│                                                             │
+│  HC-SR04 VCC  → Arduino 5V                                 │
+│  HC-SR04 TRIG → Arduino Pin 3 (OUTPUT)                     │
+│  HC-SR04 ECHO → Arduino Pin 4 (INPUT)                      │
+│  HC-SR04 GND  → Arduino GND                                │
+│                                                             │
+│  Position recommandée : façade, à 25-30cm du bac           │
+│  Zone de détection : 5-55cm                                 │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ MICROPHONE MAX9814 (Son ambiant)                            │
+│                                                             │
+│  MAX9814 VDD → Arduino 3.3V                                │
+│  MAX9814 GND → Arduino GND                                 │
+│  MAX9814 OUT → Arduino A0 (+ condensateur 10µF GND)        │
+│  MAX9814 AR  → Non connecté (gain = 40dB par défaut)        │
+│                                                             │
+│  Câble BLINDÉ obligatoire (coaxial fin)                     │
+│  Position : sous le bac, orienté vers les visiteurs         │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ LCD 20×4 I2C                                                │
+│                                                             │
+│  LCD GND → Arduino GND                                      │
+│  LCD VCC → Arduino 5V                                       │
+│  LCD SDA → Arduino Pin 20 (SDA)                            │
+│  LCD SCL → Arduino Pin 21 (SCL)                            │
+│                                                             │
+│  Adresse I2C : 0x27 (défaut) ou 0x3F                        │
+│  Si écran non détecté → lancer "I2C Scanner" sketch        │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ ENCODEUR ROTATIF KY-040                                     │
+│                                                             │
+│  KY-040 CLK → Arduino Pin 9 (INPUT_PULLUP)                 │
+│  KY-040 DT  → Arduino Pin 10 (INPUT_PULLUP)                │
+│  KY-040 SW  → Arduino Pin 11 (INPUT_PULLUP)                │
+│  KY-040 VCC → Arduino 5V                                   │
+│  KY-040 GND → Arduino GND                                  │
+│                                                             │
+│  Utilisation : ajustement vitesse ±20%                      │
+│  (tourner = ±2%/clic, appuyer = réinitialiser)             │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ BOUTON MODE (Pause/Reprendre)                               │
+│                                                             │
+│  Un côté → Arduino Pin 7 (INPUT_PULLUP)                    │
+│  Autre côté → Arduino GND                                  │
+│                                                             │
+│  Action : bascule entre MODE_RUNNING ↔ MODE_PAUSED          │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ BUZZER PASSIF                                               │
+│                                                             │
+│  Buzzer (+) → Arduino Pin 8                                │
+│  Buzzer (-) → Arduino GND                                  │
+│                                                             │
+│  Note : buzzer PASSIF (piézo sans oscillateur interne)     │
+│  Un buzzer actif jouera juste un bip monotone.             │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ LED WS2812B (Optionnel)                                     │
+│                                                             │
+│  Arduino Pin 6 ─[470Ω]─→ WS2812B DIN                      │
+│  5V ─[1000µF]──→ WS2812B +5V                              │
+│  GND ──────────→ WS2812B GND                               │
+│                                                             │
+│  Alimentation séparée recommandée si > 30 LEDs             │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ POTENTIOMÈTRE VITESSE                                       │
+│                                                             │
+│  Extrémité 1 → Arduino GND                                 │
+│  Curseur     → Arduino A1                                   │
+│  Extrémité 2 → Arduino 5V                                  │
+│                                                             │
+│  Valeur : 10kΩ linéaire recommandé                         │
+│  Plage vitesse : 200 - 2500 mm/min                          │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ LIAISON SÉRIE VERS GRBL (Arduino #1)                        │
+│                                                             │
+│  Arduino #2 Pin 18 (TX1) → Arduino #1 RX                  │
+│  Arduino #2 Pin 19 (RX1) ← Arduino #1 TX                  │
+│  Arduino #2 GND          ── Arduino #1 GND  ← CRUCIAL      │
+│                                                             │
+│  Baud : 115200 | Format : 8N1 | Niveau : 5V TTL            │
+│  ⚠️ JAMAIS connecter TX→TX ou RX→RX (liaison CROISÉE)      │
+└─────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════
+RÉSISTANCES ET CONDENSATEURS DE DÉCOUPLAGE
+═══════════════════════════════════════════════════════
+
+  Composant          Valeur    Position
+  ─────────────────  ────────  ────────────────────────
+  R pull-up DHT22    10kΩ      Entre DHT22 DATA et 3.3V
+  R LED status       220Ω      Entre Pin 13 et LED (+)
+  R LED WS2812B DIN  470Ω      Entre Pin 6 et DIN
+  C découplage VCC   100nF     Près de chaque VCC capteur
+  C WS2812B alimt.   1000µF    Sur +5V bande LED
+  C filtre MAX9814   10µF      Sur VDD MAX9814
