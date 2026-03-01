@@ -438,11 +438,20 @@ void loop() {
     // 3b. Lire l'encodeur (ajustement manuel de vitesse)
     int enc = read_encoder_delta();
     if (enc != 0) {
-        g_encoderPos += enc;
+        g_encoderPos = constrain(g_encoderPos + enc, -10, 10);
         g_usePotSpeed = false;
         // L'encodeur permet d'ajuster ±20% la vitesse de base
-        // (modulé dans curves_from_sensors via encoderPos)
     }
+
+    // Bouton encodeur : bascule entre vitesse potentiomètre et vitesse algorithmique
+    static bool lastEncSw = HIGH;
+    bool encSw = digitalRead(ENC_SW_PIN);
+    if (encSw == LOW && lastEncSw == HIGH) {
+        g_usePotSpeed = !g_usePotSpeed;
+        g_encoderPos = 0;  // Remettre l'offset à zéro au changement de mode
+        beep(g_usePotSpeed ? 1200 : 800, 40);
+    }
+    lastEncSw = encSw;
 
     // 3c. Avancer l'état de la courbe (mise à jour des paramètres)
     curves_advance(g_curveState, sensors);
@@ -458,7 +467,7 @@ void loop() {
         int potVal = analogRead(POT_SPEED_PIN);
         feedrate = map(potVal, 0, 1023, 200, 2500);
     }
-    // Ajustement encodeur ±20% (g_encoderPos ∈ [-10, +10] idéalement)
+    // Ajustement encodeur ±20% (g_encoderPos ∈ [-10, +10])
     feedrate *= (1.0f + g_encoderPos * 0.02f);
     feedrate = constrain(feedrate, 150.0f, 3000.0f);
 
