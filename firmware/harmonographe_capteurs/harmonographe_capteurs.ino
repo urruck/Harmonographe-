@@ -352,10 +352,12 @@ void setup() {
     lcd.print(F("Homing...           "));
 
     if (!grbl_home()) {
-        Serial.println(F("ATTENTION: Homing échoué, mode sans homing"));
-        // Continuer sans homing (moins précis mais fonctionnel)
-        // Envoyer simplement au centre présumé
-        grbl_send_line("G92 X0 Y0");  // Définir position courante comme origine
+        Serial.println(F("ATTENTION: Homing echoue, mode sans homing"));
+        // Si le homing a mis GRBL en alarme, le déverrouiller avant G92
+        // (ex: fin de course non déclenché → ALARM:9)
+        grbl_send_line("$X");
+        // Définir la position courante comme origine (machine positionnée manuellement)
+        grbl_send_line("G92 X0 Y0");
     }
 
     // Test de calibration rapide
@@ -386,7 +388,7 @@ void setup() {
 // ─── loop() ──────────────────────────────────────────────────────────────
 
 void loop() {
-    // ── 1. Gestion du bouton MODE (pause/reprendre) ───────────────────
+    // ── 1. Gestion du bouton MODE (pause/reprendre/récupération) ─────
     if (read_button_mode()) {
         if (g_mode == MODE_RUNNING) {
             g_mode = MODE_PAUSED;
@@ -395,9 +397,21 @@ void loop() {
             Serial.println(F("PAUSE"));
         } else if (g_mode == MODE_PAUSED) {
             g_mode = MODE_RUNNING;
-            grbl_init();  // Réinitialiser GRBL après arrêt d'urgence
+            grbl_init();  // Réinitialiser GRBL (inclut $X pour déverrouiller alarme)
             beep(880, 100);
             Serial.println(F("REPRISE"));
+        } else if (g_mode == MODE_ERROR) {
+            // Récupération depuis l'état d'erreur : réinitialiser GRBL et reprendre
+            Serial.println(F("Tentative de recuperation depuis erreur..."));
+            g_grblState.errorCount = 0;
+            if (grbl_init()) {
+                g_mode = MODE_RUNNING;
+                beep(880, 100);
+                Serial.println(F("Recuperation OK, reprise du dessin"));
+            } else {
+                beep(220, 500);  // Son grave = échec
+                Serial.println(F("Recuperation echouee, verifier le cable GRBL"));
+            }
         }
         delay(200);  // Anti-rebond supplémentaire
     }

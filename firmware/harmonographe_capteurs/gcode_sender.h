@@ -68,6 +68,9 @@ void grbl_flush_incoming() {
 /**
  * Attend la réponse "ok" de GRBL.
  * Retourne true si "ok" reçu, false si timeout ou erreur.
+ *
+ * Vérifie le bouton BTN_MODE_PIN (défini dans sensors.h, inclus avant)
+ * pendant l'attente pour permettre un arrêt d'urgence même en milieu de move.
  */
 bool grbl_wait_ok(unsigned long timeoutMs) {
     unsigned long start = millis();
@@ -75,6 +78,13 @@ bool grbl_wait_ok(unsigned long timeoutMs) {
     int idx = 0;
 
     while ((millis() - start) < timeoutMs) {
+        // Vérifier le bouton d'arrêt d'urgence pendant l'attente GRBL.
+        // Permet d'interrompre même si GRBL prend du temps (buffer plein).
+        if (digitalRead(BTN_MODE_PIN) == LOW) {
+            grbl_emergency_stop();
+            return false;
+        }
+
         if (GRBL_SERIAL.available()) {
             char c = GRBL_SERIAL.read();
             if (c == '\n' || idx >= 30) {
@@ -90,7 +100,7 @@ bool grbl_wait_ok(unsigned long timeoutMs) {
                     g_grblState.errorCount++;
                     return false;
                 }
-                // Ignorer les autres lignes (ex: "Grbl 1.1h...")
+                // Ignorer les autres lignes (ex: "Grbl 1.1h...", "[MSG:...]")
                 idx = 0;
             } else if (c != '\r') {
                 resp[idx++] = c;
@@ -137,12 +147,15 @@ bool grbl_init() {
     delay(100);
     grbl_flush_incoming();
 
-    // Envoyer '$' (demande de statut) — GRBL doit répondre "ok"
-    GRBL_SERIAL.print("$\n");
+    // Vérifier la connectivité avec "$I" (version info) — plus court que "$"
+    // "$" envoie ~30 lignes de settings, risque de débordement buffer série (64 octets).
+    // "$I" retourne 2 courtes lignes [VER:...] [OPT:...] + "ok".
+    GRBL_SERIAL.print("$I\n");
     if (!grbl_wait_ok(3000)) {
         // Deuxième tentative
         delay(1000);
-        GRBL_SERIAL.print("\n$\n");
+        grbl_flush_incoming();
+        GRBL_SERIAL.print("$I\n");
         if (!grbl_wait_ok(3000)) {
             Serial.println(F("GRBL: Pas de réponse!"));
             g_grblState.connected = false;
