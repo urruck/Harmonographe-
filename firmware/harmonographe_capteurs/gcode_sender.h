@@ -118,11 +118,18 @@ bool grbl_send_line(const char *line) {
 
 /**
  * Initialise la connexion GRBL et vérifie la communication.
+ * Appelée aussi après un arrêt d'urgence pour reprendre le dessin.
  */
 bool grbl_init() {
     GRBL_SERIAL.begin(GRBL_BAUD);
     delay(500);  // GRBL prend ~500ms pour démarrer
 
+    grbl_flush_incoming();
+
+    // Débloquer l'alarme si GRBL est en état d'alarme (ex: après Ctrl+X)
+    // Sans danger si GRBL n'est pas en alarme (réponse ignorée)
+    GRBL_SERIAL.print("$X\n");
+    delay(200);
     grbl_flush_incoming();
 
     // Envoyer '\n' pour vider le buffer GRBL et obtenir une réponse propre
@@ -193,21 +200,23 @@ bool grbl_home() {
  * Déplace la machine à la position (x, y) en mm depuis le centre du bac.
  * x ∈ [-MACHINE_RADIUS, +MACHINE_RADIUS]
  * y ∈ [-MACHINE_RADIUS, +MACHINE_RADIUS]
+ *
+ * Note : x et y sont des coordonnées de travail GRBL (G54).
+ * Le système de coordonnées est configuré par grbl_home() via G10 L20
+ * pour que (0,0) corresponde au centre du bac. Ne pas ajouter WORK_OFFSET
+ * ici — ce serait un double décalage.
  */
 bool grbl_move_to(float x, float y, float feedrate) {
-    // Conversion : centre du bac = (0,0) → coordonnées machine
-    float machX = x + WORK_OFFSET_X;
-    float machY = y + WORK_OFFSET_Y;
+    // Sécurité : limiter aux limites du bac en coordonnées centrées
+    // Machine [5, 395] - WORK_OFFSET 200 = [-195, +195]
+    x = constrain(x, -195.0f, 195.0f);
+    y = constrain(y, -195.0f, 195.0f);
 
-    // Sécurité : limiter aux dimensions du bac
-    machX = constrain(machX, 5.0f, 395.0f);
-    machY = constrain(machY, 5.0f, 395.0f);
-
-    // Formater la ligne G-code
+    // Formater la ligne G-code en coordonnées de travail
     // Format : "G1 X123.456 Y-89.123 F1234\n"
     snprintf(g_grblLineBuffer, sizeof(g_grblLineBuffer),
              "G1 X%.3f Y%.3f F%.0f",
-             machX, machY, feedrate);
+             x, y, feedrate);
 
     bool ok = grbl_send_line(g_grblLineBuffer);
 
@@ -245,12 +254,14 @@ bool grbl_send_circle_test(float radius, float feedrate) {
     delay(500);
 
     // Tracer le cercle avec des arcs G2 (sens horaire)
+    // Point final = point de départ = (radius, 0) en coordonnées de travail
+    // I/J = vecteur du point courant vers le centre = (-radius, 0)
     snprintf(g_grblLineBuffer, sizeof(g_grblLineBuffer),
              "G2 X%.3f Y%.3f I%.3f J%.3f F%.0f",
-             WORK_OFFSET_X + radius,  // Point final = point de départ
-             WORK_OFFSET_Y,
-             -radius,                 // Centre relatif
-             0.0f,
+             radius,   // Point final X (coords de travail, même que départ)
+             0.0f,     // Point final Y
+             -radius,  // I : décalage X vers le centre
+             0.0f,     // J : décalage Y vers le centre
              feedrate);
     return grbl_send_line(g_grblLineBuffer);
 }

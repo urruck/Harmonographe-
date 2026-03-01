@@ -65,12 +65,11 @@
 LiquidCrystal_I2C lcd(LCD_I2C_ADDR, LCD_COLS, LCD_ROWS);
 
 // ─── Pins interface utilisateur ───────────────────────────────────────────
-#define BTN_MODE_PIN    7
+// Note : BTN_MODE_PIN (7) et POT_SPEED_PIN (A1) sont définis dans sensors.h
 #define BUZZER_PIN      8
 #define ENC_CLK_PIN     9
 #define ENC_DT_PIN      10
 #define ENC_SW_PIN      11
-#define POT_SPEED_PIN   A1
 
 // ─── États de la machine ─────────────────────────────────────────────────
 enum MachineMode {
@@ -255,17 +254,21 @@ void start_new_cycle() {
     Serial.print(F("Nouveau cycle #"));
     Serial.println(g_cycleCount);
 
-    // Spirale de retour au centre
-    int steps = 40;
-    for (int i = 0; i <= steps; i++) {
-        float alpha = smoothstep3((float)i / steps);
-        float retX = fromX * (1.0f - alpha);
-        float retY = fromY * (1.0f - alpha);
-        grbl_move_to(retX, retY, 800.0f);
+    // Retour au centre uniquement si la bille est loin (évite une spirale inutile)
+    float r = sqrtf(fromX * fromX + fromY * fromY);
+    if (r >= RETURN_RADIUS_THRESHOLD) {
+        int steps = 40;
+        for (int i = 0; i <= steps; i++) {
+            float alpha = smoothstep3((float)i / steps);
+            float retX = fromX * (1.0f - alpha);
+            float retY = fromY * (1.0f - alpha);
+            grbl_move_to(retX, retY, 800.0f);
+        }
+        // Pause au centre
+        delay(300);
+    } else {
+        Serial.println(F("Bille pres du centre, retour ignore"));
     }
-
-    // Pause au centre
-    delay(300);
 
     // Réinitialiser le temps de la courbe (repart de t=0)
     // Garder les paramètres courants pour une transition douce
