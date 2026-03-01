@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Harmonographe des 4 Saisons — GeoGebra Classic 5/6
+  ====================================================
+  Fichier XML source du .ggb (format GeoGebra)
+
+  Pour créer le fichier .ggb :
+    python3 generer_ggb.py
+  Ou manuellement :
+    1. Renommer ce fichier en "geogebra.xml"
+    2. Compresser en ZIP
+    3. Renommer le .zip en .ggb
+
+  Courbes paramétriques :
+    x(t) = R × [A₁·sin(ω₁t + φ₁) + A₂·sin(ω₂t + φ₂)]
+    y(t) = R × [A₃·sin(ω₃t + φ₃)]
+-->
+<geogebra format="5.0" version="5.0.803.0"
+  xsi:noNamespaceSchemaLocation="http://www.geogebra.org/apps/xsd/geogebra.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  app="classic" platform="d">
+
+  <gui>
+    <window width="1100" height="800"/>
+    <perspectives>
+      <perspective id="tmp">
+        <panes>
+          <pane location="" divider="0.18" orientation="1"/>
+        </panes>
+        <views>
+          <view id="1" visible="true" inframe="false" stylebar="false"
+                location="1,3" size="882" window="100,100,800,700"/>
+          <view id="512" visible="true" inframe="false" stylebar="false"
+                location="3" size="198" window="100,100,250,400"/>
+          <view id="2" visible="false" inframe="false" stylebar="false"
+                location="1,1,1,1" size="150" window="100,100,600,400"/>
+        </views>
+        <toolbar show="true"
+          items="0 73 62 | 1 501 67 , 5 19 , 72 75 76 | 2 15 45 , 18 65 , 7 37 | 4 3 8 9 , 13 44 , 58 , 47 | 16 51 64 , 70 | 10 34 53 11 , 24 20 22 , 21 23 , 55 56 57 , 12 | 17 26 , 25 | 14 | 6 | 21 37 | 68 | 40 41 42 27"
+          position="1" help="false"/>
+        <input show="true" cmd="true" top="algebra"/>
+      </perspective>
+    </perspectives>
+    <labelingStyle val="0"/>
+    <font size="16"/>
+  </gui>
+
+  <euclidianView>
+    <viewNumber viewNo="1"/>
+    <size width="882" height="800"/>
+    <!-- Centré sur (0,0), échelle 1 pixel = 2mm environ -->
+    <coordSystem xZero="441.0" yZero="400.0" scale="2.1" yscale="2.1"/>
+    <evSettings axes="false" grid="false" gridIsBold="false"
+                pointCapturing="4" rightAngleStyle="1"
+                checkboxSize="26" gridType="3"/>
+    <bgColor r="15" g="15" b="20"/>
+    <axesColor r="100" g="100" b="120"/>
+    <gridColor r="40" g="40" b="60"/>
+    <lineStyle axes="1" grid="10"/>
+    <axis id="0" show="false" label="" unitLabel="" tickStyle="1" showNumbers="false"/>
+    <axis id="1" show="false" label="" unitLabel="" tickStyle="1" showNumbers="false"/>
+  </euclidianView>
+
+  <construction title="Harmonographe — Les 4 Saisons" author="Harmonographe-Shapeoko" date="2024">
+
+    <!-- ══════════════════════════════════════════════════════
+         TEXTE DE TITRE
+         ══════════════════════════════════════════════════════ -->
+    <expression label="Titre" exp="&quot;Harmonographe des 4 Saisons&quot;" type="text"/>
+    <element type="text" label="Titre">
+      <show object="true" label="false"/>
+      <objColor r="220" g="220" b="240" alpha="0.0"/>
+      <layer val="0"/>
+      <isFixed val="true"/>
+      <coords x="-170" y="200" z="1"/>
+      <labelMode val="0"/>
+      <font serif="false" sizeM="1.5" bold="true" italic="false" color="false" fraction="false"/>
+    </element>
+
+    <!-- ══════════════════════════════════════════════════════
+         ❄️  HIVER
+         Conditions : T≈3°C, H≈70%, silence, personne loin
+         ω₁=1.000, ω₂=1.503, ω₃=1.000
+         Lissajous 2:3 légèrement détuné → tourne lentement
+         Couleur : Bleu glacé #3465A4
+         ══════════════════════════════════════════════════════ -->
+    <command name="Curve">
+      <input
+        a0="185 * (0.60 * sin(1.000 * t + 0) + 0.40 * sin(1.503 * t + (pi / 4)))"
+        a1="185 * 0.85 * sin(1.000 * t + (pi / 6))"
+        a2="t"
+        a3="0"
+        a4="400"/>
+      <output a0="Hiver"/>
+    </command>
+    <element type="curve" label="Hiver">
+      <show object="true" label="true" ev="4"/>
+      <!-- Bleu glacé -->
+      <objColor r="52" g="101" b="164" alpha="0.0"/>
+      <layer val="0"/>
+      <labelOffset x="8" y="-20"/>
+      <labelMode val="0"/>
+      <lineStyle thickness="3" type="0" typeHidden="1"/>
+      <eqStyle style="explicit"/>
+    </element>
+
+    <!-- Texte légende Hiver -->
+    <expression label="TxtHiver"
+      exp="&quot;❄ HIVER  ω₁=1.000  ω₂=1.503  Lissajous cristallin&quot;"
+      type="text"/>
+    <element type="text" label="TxtHiver">
+      <show object="true" label="false"/>
+      <objColor r="52" g="101" b="164" alpha="0.0"/>
+      <layer val="0"/>
+      <isFixed val="true"/>
+      <coords x="-170" y="185" z="1"/>
+      <labelMode val="0"/>
+      <font serif="false" sizeM="0.85" bold="false" italic="false" color="false" fraction="false"/>
+    </element>
+
+    <!-- ══════════════════════════════════════════════════════
+         🌸  PRINTEMPS
+         Conditions : T≈15°C, H≈60%, quelques personnes, son doux
+         ω₁=φ=1.618, ω₂=1.500, ω₃=1.333
+         Spirale dorée, ouverture progressive
+         Couleur : Vert printanier #5FAD3E
+         ══════════════════════════════════════════════════════ -->
+    <command name="Curve">
+      <input
+        a0="185 * (0.65 * sin(1.61803 * t + (pi / 6)) + 0.35 * sin(1.500 * t + (pi / 3)))"
+        a1="185 * 0.92 * sin(1.33300 * t + (pi / 8))"
+        a2="t"
+        a3="0"
+        a4="500"/>
+      <output a0="Printemps"/>
+    </command>
+    <element type="curve" label="Printemps">
+      <show object="true" label="true" ev="4"/>
+      <!-- Vert printanier -->
+      <objColor r="95" g="173" b="62" alpha="0.0"/>
+      <layer val="0"/>
+      <labelOffset x="8" y="-20"/>
+      <labelMode val="0"/>
+      <lineStyle thickness="3" type="0" typeHidden="1"/>
+      <eqStyle style="explicit"/>
+    </element>
+
+    <expression label="TxtPrintemps"
+      exp="&quot;🌸 PRINTEMPS  ω₁=φ=1.618  ω₂=1.500  Spirale dorée&quot;"
+      type="text"/>
+    <element type="text" label="TxtPrintemps">
+      <show object="true" label="false"/>
+      <objColor r="95" g="173" b="62" alpha="0.0"/>
+      <layer val="0"/>
+      <isFixed val="true"/>
+      <coords x="-170" y="170" z="1"/>
+      <labelMode val="0"/>
+      <font serif="false" sizeM="0.85" bold="false" italic="false" color="false" fraction="false"/>
+    </element>
+
+    <!-- ══════════════════════════════════════════════════════
+         ☀️  ÉTÉ
+         Conditions : T≈30°C, H≈80%, monde autour, son fort
+         ω₁=√2≈1.414, ω₂=φ²≈2.618, ω₃=√3≈1.732
+         Fréquences irrationnelles → jamais périodique, très dense
+         Couleur : Rouge orangé #E05C00
+         ══════════════════════════════════════════════════════ -->
+    <command name="Curve">
+      <input
+        a0="185 * (0.75 * sin(1.41421 * t + (pi / 4)) + 0.25 * sin(2.61803 * t + (pi / 2)))"
+        a1="185 * 0.95 * sin(1.73205 * t + (pi / 5))"
+        a2="t"
+        a3="0"
+        a4="700"/>
+      <output a0="Ete"/>
+    </command>
+    <element type="curve" label="Ete">
+      <show object="true" label="true" ev="4"/>
+      <!-- Rouge orangé estival -->
+      <objColor r="224" g="92" b="0" alpha="0.0"/>
+      <layer val="0"/>
+      <labelOffset x="8" y="-20"/>
+      <labelMode val="0"/>
+      <lineStyle thickness="2" type="0" typeHidden="1"/>
+      <eqStyle style="explicit"/>
+    </element>
+
+    <expression label="TxtEte"
+      exp="&quot;☀ ÉTÉ  ω₁=√2  ω₂=φ²  ω₃=√3  Dense et organique&quot;"
+      type="text"/>
+    <element type="text" label="TxtEte">
+      <show object="true" label="false"/>
+      <objColor r="224" g="92" b="0" alpha="0.0"/>
+      <layer val="0"/>
+      <isFixed val="true"/>
+      <coords x="-170" y="155" z="1"/>
+      <labelMode val="0"/>
+      <font serif="false" sizeM="0.85" bold="false" italic="false" color="false" fraction="false"/>
+    </element>
+
+    <!-- ══════════════════════════════════════════════════════
+         🍂  AUTOMNE
+         Conditions : T≈12°C, H≈75%, quelqu'un passe, son léger
+         ω₁=1.002 (quasi-1), ω₂=φ=1.618, ω₃=1.334
+         Ellipse se déformant lentement, mélancolique
+         Couleur : Orange brun #CE5C00
+         ══════════════════════════════════════════════════════ -->
+    <command name="Curve">
+      <input
+        a0="185 * (0.55 * sin(1.002 * t + (pi / 3)) + 0.45 * sin(1.61803 * t + (2 * pi / 3)))"
+        a1="185 * 0.88 * sin(1.334 * t + (pi / 4))"
+        a2="t"
+        a3="0"
+        a4="600"/>
+      <output a0="Automne"/>
+    </command>
+    <element type="curve" label="Automne">
+      <show object="true" label="true" ev="4"/>
+      <!-- Orange automne -->
+      <objColor r="206" g="92" b="0" alpha="0.0"/>
+      <layer val="0"/>
+      <labelOffset x="8" y="-20"/>
+      <labelMode val="0"/>
+      <lineStyle thickness="3" type="0" typeHidden="1"/>
+      <eqStyle style="explicit"/>
+    </element>
+
+    <expression label="TxtAutomne"
+      exp="&quot;🍂 AUTOMNE  ω₁=1.002  ω₂=φ=1.618  Ellipse tournante&quot;"
+      type="text"/>
+    <element type="text" label="TxtAutomne">
+      <show object="true" label="false"/>
+      <objColor r="206" g="92" b="0" alpha="0.0"/>
+      <layer val="0"/>
+      <isFixed val="true"/>
+      <coords x="-170" y="140" z="1"/>
+      <labelMode val="0"/>
+      <font serif="false" sizeM="0.85" bold="false" italic="false" color="false" fraction="false"/>
+    </element>
+
+    <!-- ══════════════════════════════════════════════════════
+         CERCLE DE RÉFÉRENCE (bord du bac à sable)
+         ══════════════════════════════════════════════════════ -->
+    <expression label="BacCircle" exp="x^2 + y^2 = 185^2" type="implicit_poly"/>
+    <element type="implicit_poly" label="BacCircle">
+      <show object="true" label="false"/>
+      <objColor r="60" g="60" b="90" alpha="0.0"/>
+      <layer val="0"/>
+      <lineStyle thickness="1" type="10" typeHidden="1"/>
+    </element>
+
+    <expression label="TxtBac"
+      exp="&quot;— bord du bac à sable (Ø370mm) —&quot;"
+      type="text"/>
+    <element type="text" label="TxtBac">
+      <show object="true" label="false"/>
+      <objColor r="80" g="80" b="120" alpha="0.0"/>
+      <layer val="0"/>
+      <isFixed val="true"/>
+      <coords x="-60" y="-190" z="1"/>
+      <labelMode val="0"/>
+      <font serif="false" sizeM="0.75" bold="false" italic="true" color="false" fraction="false"/>
+    </element>
+
+  </construction>
+</geogebra>

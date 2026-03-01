@@ -1,0 +1,87 @@
+══════════════════════════════════════════════════════════════════
+  HARMONOGRAPHE DES 4 SAISONS — Commandes GeoGebra
+  Coller chaque ligne dans le champ de saisie GeoGebra (Entrée)
+══════════════════════════════════════════════════════════════════
+
+  Légende des paramètres :
+    ω₁, ω₂ = fréquences X (pendules 1 et 2)
+    ω₃      = fréquence Y (pendule 3)
+    φ₁..φ₃  = phases (rotation de la figure)
+    A₁, A₂  = amplitudes (équilibre des deux composantes X)
+    R = 185  = rayon (mm) — zone de travail du bac à sable
+
+──────────────────────────────────────────────────────────────────
+  ❄️  HIVER  — Lissajous cristallin
+  Conditions : T≈3°C, H≈70%, silence, personne loin
+  Capteurs normalisés : temp=0.0, hum=0.67, dist=0.0, son=0.03
+  Fréquences : ω₁=1.000, ω₂=1.503 (ratio 2:3 détuné), ω₃=1.000
+  Caractère : figure fermée qui tourne très lentement, cristalline
+──────────────────────────────────────────────────────────────────
+
+Hiver = Courbe(185 (0.60 sin(t) + 0.40 sin(1.503t + π / 4)), 185 * 0.85 * sin(t + π / 6), t, 0, 400)
+
+(Après création : clic droit → Propriétés → Couleur : Bleu #3465A4 / Épaisseur : 3)
+
+──────────────────────────────────────────────────────────────────
+  🌸  PRINTEMPS  — Spirale dorée
+  Conditions : T≈15°C, H≈60%, quelques personnes, son doux
+  Capteurs normalisés : temp=0.12, hum=0.52, dist=0.44, son=0.15
+  Fréquences : ω₁=φ=1.618, ω₂=1.500, ω₃=1.333 (presque 4:3)
+  Caractère : spirale ouverte, transition géométrique↔organique
+──────────────────────────────────────────────────────────────────
+
+Printemps = Courbe(185 (0.65 sin(1.618t + π / 6) + 0.35 sin(1.5t + π / 3)), 185 * 0.92 * sin(1.333t + π / 8), t, 0, 500)
+
+(Après création : clic droit → Propriétés → Couleur : Vert #4E9A06 / Épaisseur : 3)
+
+──────────────────────────────────────────────────────────────────
+  ☀️  ÉTÉ  — Dense et tourbillonnant
+  Conditions : T≈30°C, H≈80%, monde autour, son fort
+  Capteurs normalisés : temp=0.69, hum=0.82, dist=0.78, son=0.55
+  Fréquences : ω₁=√2≈1.414, ω₂=φ²≈2.618, ω₃=√3≈1.732 (irrationnels)
+  Caractère : courbe jamais périodique, dense, très organique
+──────────────────────────────────────────────────────────────────
+
+Ete = Courbe(185 (0.75 sin(1.41421t + π / 4) + 0.25 sin(2.61803t + π / 2)), 185 * 0.95 * sin(1.73205t + π / 5), t, 0, 700)
+
+(Après création : clic droit → Propriétés → Couleur : Rouge #CC3300 / Épaisseur : 2)
+
+──────────────────────────────────────────────────────────────────
+  🍂  AUTOMNE  — Ellipse mélancolique tournante
+  Conditions : T≈12°C, H≈75%, quelqu'un passe, son léger
+  Capteurs normalisés : temp=0.0, hum=0.75, dist=0.33, son=0.10
+  Fréquences : ω₁=1.002 (quasi-1), ω₂=φ=1.618, ω₃=1.334 (quasi-4/3)
+  Caractère : ellipse se déformant lentement, deux forces presque égales
+──────────────────────────────────────────────────────────────────
+
+Automne = Courbe(185 (0.55 sin(1.002t + π / 3) + 0.45 sin(1.618t + 2π / 3)), 185 * 0.88 * sin(1.334t + π / 4), t, 0, 600)
+
+(Après création : clic droit → Propriétés → Couleur : Orange #CE5C00 / Épaisseur : 3)
+
+══════════════════════════════════════════════════════════════════
+  ASTUCE : Afficher une seule saison à la fois
+  → Cliquer sur l'œil (visibilité) dans la liste des objets
+     pour masquer les autres courbes
+══════════════════════════════════════════════════════════════════
+
+  VARIANTE ANGLAISE (si GeoGebra en anglais) :
+  Remplacer "Courbe" par "Curve" dans chaque commande.
+
+══════════════════════════════════════════════════════════════════
+  PARAMÈTRES OPTIONNELS : Sliders interactifs
+  Coller ces lignes pour créer des curseurs de contrôle
+══════════════════════════════════════════════════════════════════
+
+omega1 = 1
+omega2 = 1.503
+omega3 = 1
+phi1 = 0
+phi2 = 0.785
+phi3 = 0.524
+A1 = 0.6
+A3 = 0.85
+R = 185
+
+CourbeInteractive = Courbe(R (A1 sin(omega1 t + phi1) + (1 - A1) sin(omega2 t + phi2)), R * A3 * sin(omega3 * t + phi3), t, 0, 400)
+
+(Modifier les sliders pour explorer l'espace des paramètres interactivement)
