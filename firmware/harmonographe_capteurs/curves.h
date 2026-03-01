@@ -27,6 +27,18 @@
 #define SQRT3       1.7320508075f    // √3
 #define TWO_PI      6.2831853071f
 
+// ─── Types de patterns de dessin ─────────────────────────────────────────
+#define PATTERN_HARMONOGRAPHE  0    // Harmonographe 3 pendules (défaut)
+#define PATTERN_ROSE           1    // Rose de Rhodonée (activée par le son)
+#define PATTERN_SPIRALE        2    // Spirale d'Archimède (sélection manuelle)
+#define PATTERN_COUNT          3    // Nombre total de patterns
+
+// ─── Paramètres spirale d'Archimède ──────────────────────────────────────
+// 4 tours complets en 480 unités de temps mathématique
+// (= POINTS_PER_CYCLE × DT_DEFAULT = 8000 × 0.06)
+#define SPIRAL_TURNS       4.0f
+#define SPIRAL_OMEGA_RAD   (SPIRAL_TURNS * TWO_PI / 480.0f)
+
 // ─── Seuil de transition douce ───────────────────────────────────────────
 #define PARAM_CHANGE_THRESHOLD  0.08f  // Si changement > 8%, interpoler
 #define INTERPOLATION_STEPS     150    // Points de transition
@@ -91,6 +103,7 @@ void curves_get_point(const CurveState &state, float &x, float &y);
 void curves_advance(CurveState &state, const NormalizedSensors &sensors);
 bool curves_needs_transition(const CurveParams &a, const CurveParams &b);
 CurveParams curves_interpolate(const CurveParams &a, const CurveParams &b, float alpha);
+uint8_t curves_auto_select_pattern(const NormalizedSensors &sensors);
 float smoothstep(float x);
 float smoothstep3(float x);
 
@@ -267,26 +280,39 @@ CurveParams curves_from_sensors(const NormalizedSensors &sensors) {
     return p;
 }
 
+// ─── Fonctions internes de calcul de points ───────────────────────────────
+
 /**
- * Calcule la position (x, y) en mm depuis le centre pour le temps t.
+ * Applique le clamp circulaire de sécurité à (x, y).
+ * Ne dépasse pas 97% du rayon de travail.
+ */
+static void curves_clamp_circle(float &x, float &y) {
+    float r = sqrtf(x * x + y * y);
+    if (r > MACHINE_RADIUS_MM * 0.97f) {
+        float scale = (MACHINE_RADIUS_MM * 0.97f) / r;
+        x *= scale;
+        y *= scale;
+    }
+}
+
+/**
+ * Pattern HARMONOGRAPHE — 3 pendules virtuels superposés.
  *
- * Formule harmonographe 3 pendules :
+ * Formule :
  *   x(t) = R × [ A₁·sin(ω₁·t + φ₁) + A₂·sin(ω₂·t + φ₂) + δx(t) ]
  *   y(t) = R × [ A₃·sin(ω₃·t + φ₃) + δy(t) ]
  *
  * Où δx, δy sont les perturbations organiques liées au son.
  */
-void curves_get_point(const CurveState &state, float &x, float &y) {
+static void curves_get_point_harmonographe(const CurveState &state, float &x, float &y) {
     const CurveParams &p = state.current;
     float t = state.t;
 
-    // Composantes principales de la courbe harmonographe
     float rawX = p.amp1 * sinf(p.omega1 * t + p.phi1)
                + p.amp2 * sinf(p.omega2 * t + p.phi2);
     float rawY = p.amp3 * sinf(p.omega3 * t + p.phi3);
 
-    // Perturbation organique liée au son
-    // Utilise des fréquences irrationnelles → jamais périodique
+    // Perturbation organique liée au son (fréquences irrationnelles → jamais périodique)
     if (p.soundPerturb > 0.001f) {
         float dx = p.soundPerturb * sinf(p.perturbFreq1 * t + 1.234f)
                                   * sinf(p.perturbFreq2 * t * 0.7f);
@@ -296,17 +322,118 @@ void curves_get_point(const CurveState &state, float &x, float &y) {
         rawY += dy;
     }
 
-    // Conversion en millimètres (depuis le centre de la machine)
     x = rawX * MACHINE_RADIUS_MM;
     y = rawY * MACHINE_RADIUS_MM;
+    curves_clamp_circle(x, y);
+}
 
-    // Clamp de sécurité pour ne pas dépasser les limites physiques
-    float r = sqrtf(x * x + y * y);
-    if (r > MACHINE_RADIUS_MM * 0.97f) {
-        float scale = (MACHINE_RADIUS_MM * 0.97f) / r;
-        x *= scale;
-        y *= scale;
+/**
+ * Pattern ROSE — Rose de Rhodonée (rhodonea curve).
+ *
+ * Équation polaire : r = cos(k · θ)
+ *   k entier impair → k pétales
+ *   k entier pair   → 2k pétales
+ *   k irrationnel   → spirale infinie qui ne se ferme jamais
+ *
+ * k est calculé depuis amp1 (modulé par le son) :
+ *   k ∈ [3.0, 5.0] → 3 à 5 pétales / rose ouverte
+ *
+ * La perturbation sonore déforme organiquement les pétales,
+ * comme si la rose "respirait" au rythme du son ambiant.
+ */
+static void curves_get_point_rose(const CurveState &state, float &x, float &y) {
+    const CurveParams &p = state.current;
+    float theta = state.t * p.omega3;   // Rotation à vitesse omega3
+
+    // Nombre de pétales (pilotés par amp1, lui-même modulé par le son)
+    // amp1 ∈ [0.55, 0.90] → k ∈ [3.0, 4.75]
+    float k = 3.0f + p.amp1 * 2.5f;
+
+    float r = cosf(k * theta);          // r peut être négatif → pétales complets
+
+    // Perturbation organique : gonfle/dégonfle les pétales avec le son
+    if (p.soundPerturb > 0.001f) {
+        float pulse = 1.0f + p.soundPerturb * sinf(p.perturbFreq1 * state.t + 0.5f)
+                                            * sinf(p.perturbFreq2 * state.t * 0.8f + 1.1f);
+        r *= pulse;
     }
+
+    x = r * cosf(theta) * MACHINE_RADIUS_MM;
+    y = r * sinf(theta) * MACHINE_RADIUS_MM;
+    curves_clamp_circle(x, y);
+}
+
+/**
+ * Pattern SPIRALE — Spirale d'Archimède sortante.
+ *
+ * La bille part du centre et s'éloigne progressivement
+ * en faisant SPIRAL_TURNS tours jusqu'au bord du bac.
+ * La fonction start_new_cycle() ramène au centre à la fin de chaque cycle.
+ *
+ * r(t) = (SPIRAL_OMEGA_RAD · t) / (SPIRAL_TURNS · 2π) × R
+ * θ(t) = SPIRAL_OMEGA_RAD · t + φ₁
+ *
+ * La légère perturbation sonore rend chaque spire unique.
+ */
+static void curves_get_point_spiral(const CurveState &state, float &x, float &y) {
+    const CurveParams &p = state.current;
+    float theta = state.t * SPIRAL_OMEGA_RAD;   // Angle total parcouru
+
+    // Rayon croissant de 0 (centre) à MACHINE_RADIUS_MM (bord)
+    float r = (theta / (SPIRAL_TURNS * TWO_PI)) * MACHINE_RADIUS_MM * 0.95f;
+
+    // Légère ondulation pour que chaque spire soit différente
+    if (p.soundPerturb > 0.001f) {
+        r *= (1.0f + p.soundPerturb * 0.4f * sinf(p.perturbFreq1 * state.t));
+    }
+
+    // Rotation de l'axe de la spirale selon les phases capteurs
+    float axisAngle = p.phi1 * 0.5f;
+
+    x = r * cosf(theta + axisAngle);
+    y = r * sinf(theta + axisAngle);
+    curves_clamp_circle(x, y);
+}
+
+/**
+ * Calcule la position (x, y) en mm depuis le centre pour le temps t.
+ * Dispatch vers le pattern actif (harmonographe, rose ou spirale).
+ */
+void curves_get_point(const CurveState &state, float &x, float &y) {
+    switch (state.pattern) {
+        case PATTERN_ROSE:
+            curves_get_point_rose(state, x, y);
+            break;
+        case PATTERN_SPIRALE:
+            curves_get_point_spiral(state, x, y);
+            break;
+        case PATTERN_HARMONOGRAPHE:
+        default:
+            curves_get_point_harmonographe(state, x, y);
+            break;
+    }
+}
+
+/**
+ * Sélection automatique du pattern selon les capteurs.
+ *
+ * Logique avec hystérésis pour éviter les oscillations rapides :
+ *   - Son > 0.70 → Rose (les pétales vibrent avec le son)
+ *   - Son < 0.40 → Retour à l'Harmonographe
+ *   - Spirale : uniquement par sélection manuelle
+ *
+ * Note : le pattern SPIRALE n'est jamais sélectionné automatiquement
+ * pour ne pas interrompre un motif manuel en cours.
+ */
+uint8_t curves_auto_select_pattern(const NormalizedSensors &sensors) {
+    static uint8_t lastAuto = PATTERN_HARMONOGRAPHE;
+
+    if (lastAuto != PATTERN_ROSE && sensors.sound > 0.70f) {
+        lastAuto = PATTERN_ROSE;
+    } else if (lastAuto == PATTERN_ROSE && sensors.sound < 0.40f) {
+        lastAuto = PATTERN_HARMONOGRAPHE;
+    }
+    return lastAuto;
 }
 
 /**

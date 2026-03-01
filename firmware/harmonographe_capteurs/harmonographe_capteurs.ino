@@ -91,6 +91,7 @@ static uint32_t    g_lastDebugPrint = 0;
 static bool        g_btnModePressed = false;
 static int         g_encoderPos    = 0;       // Position encodeur
 static bool        g_usePotSpeed   = false;   // Vitesse manuelle par pot.
+static bool        g_manualPattern = false;   // true = pattern verrouillé manuellement
 
 // ─── Constantes ───────────────────────────────────────────────────────────
 #define LCD_UPDATE_INTERVAL_MS   500    // Rafraîchissement LCD toutes les 500ms
@@ -169,13 +170,29 @@ void lcd_update() {
     const RawSensorData &raw = sensors_get_raw();
     char buf[21];
 
-    // Ligne 0 : mode courant
+    // Ligne 0 : mode courant (et pattern actif en mode dessin)
     lcd.setCursor(0, 0);
     switch (g_mode) {
         case MODE_BOOT:      lcd.print(F("  HARMONOGRAPHE     ")); break;
         case MODE_HOMING:    lcd.print(F("   -- HOMING --     ")); break;
         case MODE_CALIBRATE: lcd.print(F("  -- CALIBRATION -- ")); break;
-        case MODE_RUNNING:   lcd.print(F("   DESSIN ACTIF     ")); break;
+        case MODE_RUNNING:
+            // Afficher le pattern actif (M = manuel, A = auto)
+            switch (g_curveState.pattern) {
+                case PATTERN_ROSE:
+                    lcd.print(g_manualPattern ? F(" ROSE  [M]          ")
+                                              : F(" ROSE  [son]        "));
+                    break;
+                case PATTERN_SPIRALE:
+                    lcd.print(F(" SPIRALE [M]        "));
+                    break;
+                case PATTERN_HARMONOGRAPHE:
+                default:
+                    lcd.print(g_manualPattern ? F(" HARMONO [M]        ")
+                                              : F("  DESSIN ACTIF      "));
+                    break;
+            }
+            break;
         case MODE_PAUSED:    lcd.print(F("  *** PAUSE ***     ")); break;
         case MODE_ERROR:     lcd.print(F("  !!! ERREUR !!!    ")); break;
     }
@@ -435,6 +452,15 @@ void loop() {
     sensors_update();
     const NormalizedSensors &sensors = sensors_get_normalized();
 
+    // 3a+. Auto-sélection du pattern selon les capteurs (si pas de sélection manuelle)
+    if (!g_manualPattern) {
+        uint8_t autoPattern = curves_auto_select_pattern(sensors);
+        if (autoPattern != g_curveState.pattern) {
+            g_curveState.pattern = autoPattern;
+            // La spirale n'est jamais auto-sélectionnée, pas besoin de reset t ici
+        }
+    }
+
     // 3b. Lire l'encodeur (ajustement manuel de vitesse)
     int enc = read_encoder_delta();
     if (enc != 0) {
@@ -443,13 +469,52 @@ void loop() {
         // L'encodeur permet d'ajuster ±20% la vitesse de base
     }
 
-    // Bouton encodeur : bascule entre vitesse potentiomètre et vitesse algorithmique
-    static bool lastEncSw = HIGH;
+    // Bouton encodeur :
+    //   Court appui  (<800ms) → bascule vitesse pot / algo
+    //   Long appui   (≥800ms) → cycle pattern suivant (manuel)
+    //   Double appui long     → retour au mode auto
+    static bool    lastEncSw        = HIGH;
+    static uint32_t encSwPressTime  = 0;
     bool encSw = digitalRead(ENC_SW_PIN);
+
     if (encSw == LOW && lastEncSw == HIGH) {
-        g_usePotSpeed = !g_usePotSpeed;
-        g_encoderPos = 0;  // Remettre l'offset à zéro au changement de mode
-        beep(g_usePotSpeed ? 1200 : 800, 40);
+        // Front descendant : début d'appui
+        encSwPressTime = millis();
+    } else if (encSw == HIGH && lastEncSw == LOW) {
+        // Front montant : fin d'appui → décider court ou long
+        uint32_t duration = millis() - encSwPressTime;
+        if (duration < 800) {
+            // Court appui : toggle vitesse potentiomètre / algo
+            g_usePotSpeed = !g_usePotSpeed;
+            g_encoderPos = 0;
+            beep(g_usePotSpeed ? 1200 : 800, 40);
+        } else {
+            // Long appui : cycle au pattern suivant
+            if (g_manualPattern) {
+                // Déjà en mode manuel → passer au pattern suivant
+                uint8_t nextPattern = (g_curveState.pattern + 1) % PATTERN_COUNT;
+                // Réinitialiser t si on passe à la spirale (doit partir du centre)
+                if (nextPattern == PATTERN_SPIRALE) {
+                    g_curveState.t = 0.0f;
+                    g_pointCount = 0;
+                }
+                g_curveState.pattern = nextPattern;
+            } else {
+                // Première pression longue : activer le mode manuel sur le pattern actuel
+                g_manualPattern = true;
+            }
+
+            // Bip double = changement de pattern manuel
+            beep(1500, 60);
+            delay(80);
+            beep(1500, 60);
+
+            // Noms des patterns en debug série
+            const char* patternNames[] = {"HARMONOGRAPHE", "ROSE", "SPIRALE"};
+            Serial.print(F("Pattern: "));
+            Serial.print(patternNames[g_curveState.pattern]);
+            Serial.println(g_manualPattern ? F(" [manuel]") : F(" [auto]"));
+        }
     }
     lastEncSw = encSw;
 
@@ -510,7 +575,10 @@ void loop() {
         Serial.print(F(" X=")); Serial.print(x, 1);
         Serial.print(F(" Y=")); Serial.print(y, 1);
         Serial.print(F(" F=")); Serial.print(feedrate, 0);
-        Serial.print(F(" t=")); Serial.println(g_curveState.t, 1);
+        Serial.print(F(" t=")); Serial.print(g_curveState.t, 1);
+        const char* patNames[] = {"HARMONO", "ROSE", "SPIRALE"};
+        Serial.print(F(" Pat=")); Serial.print(patNames[g_curveState.pattern]);
+        Serial.println(g_manualPattern ? F("[M]") : F("[A]"));
         sensors_print_debug(Serial);
         Serial.println(F("---"));
     }
