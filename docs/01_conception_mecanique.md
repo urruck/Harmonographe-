@@ -48,7 +48,7 @@ Support aimant — Vue isométrique :
          Hauteur totale : 60mm sous la platine Z
 ```
 
-**Fichiers STL** : Voir `assets/support_aimant.stl` (à imprimer en PETG, 40% remplissage, 3 périmètres)
+**Fichiers STL** : Voir `assets/README.md` pour les cotes de conception. Les STL sont à modéliser (FreeCAD, Fusion 360, Tinkercad) puis imprimer en PETG, 40% remplissage, 3 périmètres.
 
 ### 2.3 Hauteur critique (Z)
 

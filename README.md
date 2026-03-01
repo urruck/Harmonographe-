@@ -56,8 +56,10 @@ Ce projet transforme une fraiseuse CNC **Shapeoko 2** en une machine artistique 
 ```
 Harmonographe-/
 ├── README.md                          ← Ce fichier
+├── assets/
+│   └── README.md                      ← Cotes et specs des pièces 3D à imprimer
 ├── docs/
-│   ├── 01_conception_mecanique.md     ← Mécanique, adaptation Shapeoko
+│   ├── 01_conception_mecanique.md     ← Mécanique, adaptation Shapeoko 2
 │   ├── 02_electronique.md             ← Schémas et composants
 │   ├── 03_cablage_electrique.md       ← Câblage et alimentation
 │   ├── 04_algorithme_harmonographe.md ← Théorie et implémentation
@@ -100,6 +102,20 @@ Harmonographe-/
 ### 3. Connexion
 - Relier RX/TX de l'Arduino Capteurs au TX/RX du Shapeoko 2 (niveau logique 5V→5V direct)
 - Alimenter séparément : 24V pour les moteurs, 5V USB pour l'Arduino capteurs
+
+### 4. Pièces imprimées 3D
+
+Trois pièces sont à concevoir et imprimer en **PETG** (40% remplissage, 3 périmètres) :
+
+| Pièce | Fichier | Quantité | Description |
+|---|---|---|---|
+| Support aimant | `assets/support_aimant.stl` | 1 | Fixation aimant N52 sur chariot Z Shapeoko 2 |
+| Patte de fixation bac | `assets/patte_fixation_bac.stl` | 4 | Maintien du bac à sable 250×250mm |
+| Boîtier capteurs | `assets/boitier_capteurs.stl` | 1 | Logement DHT22 + HC-SR04 |
+
+Les fichiers STL ne sont pas encore fournis. **Le dossier `assets/README.md` contient toutes les cotes et contraintes** pour les modéliser avec FreeCAD, Fusion 360, OpenSCAD ou Tinkercad.
+
+> Pour débuter rapidement : **Tinkercad** (navigateur, gratuit) permet de créer ces trois pièces simples en 1 à 2 heures.
 
 ---
 

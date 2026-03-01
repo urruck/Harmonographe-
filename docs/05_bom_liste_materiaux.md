@@ -36,10 +36,10 @@
 
 - **M01** : L'aimant N52 Ø50×20mm développe une force d'attraction d'environ 18kg sur une plaque d'acier. À travers 3mm d'acrylique + 3mm de sable ≈ 12mm, la force est d'environ 2-3kg. Suffisant pour entraîner une bille de 30g.
 - **M02** : Commander 5 billes pour en tester différentes. La taille Ø19mm est le meilleur compromis. Les billes Ø25mm nécessitent un aimant plus puissant.
-- **M11** : Imprimer les pièces suivantes (fichiers STL dans `assets/`) :
-  - Support aimant (1×)
-  - Pattes de fixation bac (4×)
-  - Boîtier capteurs (1×)
+- **M11** : Imprimer les pièces suivantes (cotes dans `assets/README.md`, STL à modéliser) :
+  - `support_aimant.stl` — fixation aimant N52 sur chariot Z (1×)
+  - `patte_fixation_bac.stl` — maintien bac 250×250mm (4×)
+  - `boitier_capteurs.stl` — logement DHT22 + HC-SR04 (1×)
 
 ---
 
