@@ -69,26 +69,26 @@ La hauteur Z doit être réglée précisément :
 
 ### 3.1 Dimensions
 
-Pour une Shapeoko 3 (zone de travail 425×425mm) :
+Pour une Shapeoko 2 (zone de travail 300×300mm) :
 
 ```
 Bac à sable — Vue de dessus :
 
-┌────────────────────────────┐
-│  ┌──────────────────────┐  │  ← Bac extérieur : 500×500mm
-│  │                      │  │
-│  │   Zone de travail    │  │  ← Zone active : 400×400mm
-│  │    400 × 400 mm      │  │
-│  │                      │  │
-│  └──────────────────────┘  │
-└────────────────────────────┘
+┌──────────────────────┐
+│  ┌────────────────┐  │  ← Bac extérieur : 330×330mm
+│  │                │  │
+│  │  Zone active   │  │  ← Zone active : 250×250mm
+│  │  250 × 250 mm  │  │
+│  │                │  │
+│  └────────────────┘  │
+└──────────────────────┘
 
 Coupe :
-┌─┬────────────────────────────┬─┐
-│ │  Sable fin (3mm)           │ │  ← Hauteur bac : 15mm
-│ │________________________    │ │
-│ │  Acrylique 3mm             │ │  ← Fond transparent
-└─┴────────────────────────────┴─┘
+┌─┬─────────────────────────┬─┐
+│ │  Sable fin (3mm)        │ │  ← Hauteur bac : 15mm
+│ │_________________________│ │
+│ │  Acrylique 3mm          │ │  ← Fond transparent
+└─┴─────────────────────────┴─┘
   ← Cadre aluminium 15×15×2mm →
 ```
 
@@ -96,10 +96,10 @@ Coupe :
 
 | Pièce | Matière | Dimensions | Quantité |
 |---|---|---|---|
-| Fond | Acrylique transparent 3mm | 400×400mm | 1 |
-| Côtés | Aluminium profilé 15×15mm | 400mm | 4 |
+| Fond | Acrylique transparent 3mm | 250×250mm | 1 |
+| Côtés | Aluminium profilé 15×15mm | 250mm | 4 |
 | Vis d'assemblage | M3×10 inox | — | 16 |
-| Joint d'étanchéité | Silicone noir | 4×400mm | 4 |
+| Joint d'étanchéité | Silicone noir | 4×250mm | 4 |
 
 ### 3.3 Type de sable
 
@@ -173,7 +173,7 @@ Vue de côté avec éclairage :
   [diffusion lumière vers le haut]
 ```
 
-- **Bande LED** : WS2812B 60 LED/m, 1.6m total (pourtour 400mm × 4)
+- **Bande LED** : WS2812B 60 LED/m, 1.0m total (pourtour 250mm × 4)
 - **Contrôle** : Pin numérique Arduino (bibliothèque FastLED)
 - **Effets** : Heatmap liée aux capteurs (bleu = froid, rouge = chaud)
 - **Alimentation** : 5V 3A séparé

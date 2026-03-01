@@ -13,9 +13,9 @@
 #include <math.h>
 
 // ─── Dimensions de la machine ─────────────────────────────────────────────
-#define MACHINE_RADIUS_MM   185.0f   // Rayon de travail (bac 400×400, marge 15mm)
-#define CENTER_X_MM         200.0f   // Centre X (homing + offset)
-#define CENTER_Y_MM         200.0f   // Centre Y
+#define MACHINE_RADIUS_MM   120.0f   // Rayon de travail (bac 250×250, marge 5mm)
+#define CENTER_X_MM         150.0f   // Centre X (homing + offset, Shapeoko 2 = 300mm)
+#define CENTER_Y_MM         150.0f   // Centre Y
 
 // ─── Paramètres temporels ─────────────────────────────────────────────────
 #define DT_DEFAULT          0.06f    // Pas de temps en secondes (≈17 pts/s)

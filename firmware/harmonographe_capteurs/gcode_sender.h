@@ -24,8 +24,9 @@
 #define GRBL_RETRY_MAX      3               // Nombre max de relances
 
 // ─── Paramètres machine ───────────────────────────────────────────────────
-#define WORK_OFFSET_X       200.0f          // Offset X (homing → centre bac)
-#define WORK_OFFSET_Y       200.0f          // Offset Y
+// Shapeoko 2 : zone de travail 300×300mm → centre à 150mm
+#define WORK_OFFSET_X       150.0f          // Offset X (homing → centre bac)
+#define WORK_OFFSET_Y       150.0f          // Offset Y
 
 // ─── Structure état GRBL ─────────────────────────────────────────────────
 struct GrblState {
@@ -199,9 +200,9 @@ bool grbl_move_to(float x, float y, float feedrate) {
     float machX = x + WORK_OFFSET_X;
     float machY = y + WORK_OFFSET_Y;
 
-    // Sécurité : limiter aux dimensions du bac
-    machX = constrain(machX, 5.0f, 395.0f);
-    machY = constrain(machY, 5.0f, 395.0f);
+    // Sécurité : limiter aux dimensions du bac (Shapeoko 2 = 300×300mm)
+    machX = constrain(machX, 5.0f, 295.0f);
+    machY = constrain(machY, 5.0f, 295.0f);
 
     // Formater la ligne G-code
     // Format : "G1 X123.456 Y-89.123 F1234\n"

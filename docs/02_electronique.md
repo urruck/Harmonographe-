@@ -2,19 +2,20 @@
 
 ## 1. Architecture électronique globale
 
-Le système est divisé en **deux Arduino** communiquant par liaison série :
+Le système est divisé en **deux microcontrôleurs** communiquant par liaison série :
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  ARDUINO MEGA #1 — "GRBL Controller" (Shapeoko standard)        │
+│  ARDUINO UNO + gSHIELD — "GRBL Controller" (Shapeoko 2 natif)  │
 │                                                                   │
 │  • Firmware GRBL v1.1                                            │
-│  • Contrôle des 3 moteurs pas-à-pas (X, Y1, Y2)                │
-│  • Reçoit G-code par Serial1 (RX1/TX1)                          │
-│  • Pilote les drivers DRV8825 (ou TB6600) de la Shapeoko        │
+│  • Contrôle des 3 moteurs NEMA 17 (X, Y1, Y2)                  │
+│  • Reçoit G-code par Serial (RX/TX — pins 0/1)                  │
+│  • Drivers DRV8825 intégrés dans le gShield                     │
+│  • Courant moteur : 1.5A/phase (Vref = 1.2V)                   │
 └───────────────────────┬─────────────────────────────────────────┘
                         │ Serial (G-code ASCII) 115200 baud
-                        │ Câble: TX1→RX, RX1←TX (croisé)
+                        │ Câble: TX1→RX0, RX1←TX0 (croisé)
 ┌───────────────────────┴─────────────────────────────────────────┐
 │  ARDUINO MEGA #2 — "Sensor & Curve Controller"                   │
 │                                                                   │
@@ -35,10 +36,12 @@ Le système est divisé en **deux Arduino** communiquant par liaison série :
 
 | Composant | Référence | Quantité | Rôle |
 |---|---|---|---|
-| Arduino Mega 2560 | A000047 | 2 | Contrôleur GRBL + Capteurs |
-| (Alternative) Arduino Uno | A000066 | 1+1 | Si Mega non disponible |
+| Arduino Uno R3 + gShield | A000066 + gShield | 1 | Contrôleur GRBL (natif Shapeoko 2) |
+| Arduino Mega 2560 | A000047 | 1 | Contrôleur capteurs + courbes |
 
-> **Pourquoi Mega ?** Le Mega a 4 ports série hardware (Serial0-3), ce qui permet de déboguer sur Serial0 (USB) tout en parlant à GRBL sur Serial1, sans conflit.
+> **Shapeoko 2** : Le contrôleur GRBL est un **Arduino Uno + gShield** (shield 3 axes avec DRV8825 intégrés), fourni avec la machine. Ne pas le remplacer par un Mega — le gShield est conçu pour l'Uno.
+
+> **Pourquoi Mega pour les capteurs ?** Le Mega a 4 ports série hardware (Serial0-3), ce qui permet de déboguer sur Serial0 (USB) tout en parlant à GRBL sur Serial1, sans conflit.
 
 ### 2.2 Capteurs
 

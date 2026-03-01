@@ -4,13 +4,13 @@
 
 | Catégorie | Coût estimé (€) |
 |---|---|
-| Mécanique | 120-180 € |
-| Électronique | 80-120 € |
+| Mécanique | 100-140 € |
+| Électronique | 70-110 € |
 | Électrique | 60-90 € |
 | Visserie & consommables | 20-30 € |
-| **TOTAL** | **280-420 €** |
+| **TOTAL** | **250-370 €** |
 
-> Note : Le Shapeoko (base CNC) est considéré comme déjà disponible.
+> Note : La **Shapeoko 2** (base CNC) et son contrôleur Arduino Uno + gShield sont considérés comme déjà disponibles.
 > Prix indicatifs 2024, hors frais de port.
 
 ---
@@ -21,16 +21,16 @@
 |---|---|---|---|---|---|
 | M01 | Aimant néodyme N52 disque Ø50mm × 20mm | Supermagnete S-50-20-N / Amazon | 1 | 18 € | 18 € |
 | M02 | Bille d'acier chromé Ø19mm (3/4") | SKF / RS Components / Amazon | 5 | 1.5 € | 7.5 € |
-| M03 | Plaque acrylique transparente 400×400mm ép.3mm | Plastics-shop / Leroy Merlin | 1 | 15 € | 15 € |
-| M04 | Profilé aluminium 30×30 fente 6mm (série 30) | MakerBeam / Motedis / Amazon | 4m | 8 €/m | 32 € |
+| M03 | Plaque acrylique transparente 250×250mm ép.3mm | Plastics-shop / Leroy Merlin | 1 | 8 € | 8 € |
+| M04 | Profilé aluminium 30×30 fente 6mm (série 30) | MakerBeam / Motedis / Amazon | 3m | 8 €/m | 24 € |
 | M05 | Équerre d'angle 30×30mm pour profilé | Motedis / Amazon | 16 | 0.80 € | 13 € |
 | M06 | Vis M6×10 à tête cylindrique (profilés) | Quincaillerie | 32 | 0.05 € | 1.6 € |
 | M07 | Écrou M6 marteau (fente 6mm) | Motedis / Amazon | 32 | 0.30 € | 9.6 € |
 | M08 | Sable de quartz fin Ø0.1-0.3mm | Jardinerie / Aquarium | 3 kg | 4 €/kg | 12 € |
-| M09 | Joint silicone noir 4mm (rouleau) | Brico-dépôt / Amazon | 2m | 5 €/m | 10 € |
+| M09 | Joint silicone noir 4mm (rouleau) | Brico-dépôt / Amazon | 1.2m | 5 €/m | 6 € |
 | M10 | Visserie inox M3 assortiment | Quincaillerie | 1 boîte | 8 € | 8 € |
 | M11 | Filament PETG 1kg (support aimant + pattes) | Colorfabb / Prusament | 0.5 kg | 25 €/kg | 12.5 € |
-| **Total Mécanique** | | | | | **~140 €** |
+| **Total Mécanique** | | | | | **~120 €** |
 
 ### Notes mécanique
 
@@ -47,13 +47,14 @@
 
 | # | Désignation | Référence / Fournisseur | Qté | Prix unit. | Total |
 |---|---|---|---|---|---|
-| E01 | Arduino Mega 2560 | Arduino A000047 / Gotronic | 2 | 25 € | 50 € |
+| E01 | Arduino Uno R3 (GRBL — déjà dans la Shapeoko 2) | Arduino A000066 | 1 | 0 € | 0 € |
+| E01b | Arduino Mega 2560 (Capteurs) | Arduino A000047 / Gotronic | 1 | 25 € | 25 € |
 | E02 | Capteur DHT22 (AM2302) | Adafruit 385 / Amazon | 1 | 10 € | 10 € |
 | E03 | Capteur ultrasonique HC-SR04 | HiLetgo / Amazon | 1 | 3 € | 3 € |
 | E04 | Amplificateur micro MAX9814 | Adafruit 1713 | 1 | 8.5 € | 8.5 € |
 | E05 | LCD 20×4 avec module I2C | Keyestudio / Amazon | 1 | 12 € | 12 € |
 | E06 | Encodeur rotatif KY-040 | Amazon / Gotronic | 1 | 2 € | 2 € |
-| E07 | Bande LED WS2812B 60LED/m | Adafruit / Amazon | 2m | 12 €/m | 24 € |
+| E07 | Bande LED WS2812B 60LED/m | Adafruit / Amazon | 1.2m | 12 €/m | 14.4 € |
 | E08 | Condensateur électrolytique 100µF 35V | Composants électroniques | 5 | 0.50 € | 2.5 € |
 | E09 | Condensateur électrolytique 1000µF 10V | Composants électroniques | 2 | 0.80 € | 1.6 € |
 | E10 | Condensateur céramique 100nF | Composants électroniques | 20 | 0.10 € | 2 € |
@@ -66,11 +67,12 @@
 | E17 | Câble Dupont F-F 20cm (assortiment) | Amazon | 1 kit | 6 € | 6 € |
 | E18 | Câble coaxial blindé (micro) | Conrad / RS | 1m | 3 € | 3 € |
 | E19 | Ferrite sur câble Ø5mm | RS Components | 2 | 2 € | 4 € |
-| **Total Électronique** | | | | | **~135 €** |
+| **Total Électronique** | | | | | **~110 €** |
 
 ### Notes électronique
 
-- **E01** : L'Arduino Mega est préférable à l'Uno pour ses 4 ports série hardware. Version R3 recommandée.
+- **E01** : L'Arduino Uno + gShield de la Shapeoko 2 est déjà présent dans la machine — pas de coût supplémentaire.
+- **E01b** : L'Arduino Mega est utilisé pour les capteurs (4 ports série hardware, pratique pour déboguer).
 - **E04** : Le MAX9814 est nettement meilleur que le KY-038 pour capturer les sons ambiants (préampli intégré, AGC optionnel).
 - **E07** : Commander légèrement plus (2.5m) pour les connexions et les découpes.
 

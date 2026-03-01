@@ -1,12 +1,12 @@
 # Harmonographe de Sable Interactif — Style Sisyphus
 
-> Machine artistique interactive à bille de sable contrôlée par aimant, montée sur base Shapeoko, pilotée par Arduino et modulée par capteurs environnementaux.
+> Machine artistique interactive à bille de sable contrôlée par aimant, montée sur base **Shapeoko 2**, pilotée par Arduino et modulée par capteurs environnementaux.
 
 ---
 
 ## Vue d'ensemble
 
-Ce projet transforme une fraiseuse CNC Shapeoko en une machine artistique interactive de type **Sisyphus** : une bille d'acier roule sur du sable, guidée par un aimant néodyme se déplaçant sous le plateau. Les trajectoires sont générées par un **algorithme d'harmonographe à 3 pendules virtuels**, dont les paramètres sont modulés en temps réel par des capteurs :
+Ce projet transforme une fraiseuse CNC **Shapeoko 2** en une machine artistique interactive de type **Sisyphus** : une bille d'acier roule sur du sable, guidée par un aimant néodyme se déplaçant sous le plateau. Les trajectoires sont générées par un **algorithme d'harmonographe à 3 pendules virtuels**, dont les paramètres sont modulés en temps réel par des capteurs :
 
 | Capteur | Paramètre modulé |
 |---|---|
@@ -21,7 +21,8 @@ Ce projet transforme une fraiseuse CNC Shapeoko en une machine artistique intera
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                  SHAPEOKO CNC (modifiée)                  │
+│              SHAPEOKO 2 CNC (modifiée)                    │
+│          Zone de travail : 300×300mm                      │
 │  ┌──────────┐   ┌──────────┐                             │
 │  │ Moteur X │   │ Moteur Y │  × 2 (axe Y bilatéral)     │
 │  └──────────┘   └──────────┘                             │
@@ -37,12 +38,12 @@ Ce projet transforme une fraiseuse CNC Shapeoko en une machine artistique intera
 └─────────────────────────────────────────────────────────┘
            ↑
     ┌──────┴──────────────────────────────┐
-    │     Arduino Mega 2560 (GRBL)        │
-    │         Contrôleur CNC              │
+    │  Arduino Uno + gShield (GRBL)       │
+    │     Contrôleur CNC Shapeoko 2       │
     └──────┬──────────────────────────────┘
            │ Serial (G-code)
     ┌──────┴──────────────────────────────┐
-    │     Arduino Uno/Mega (Capteurs)     │
+    │     Arduino Mega 2560 (Capteurs)    │
     │  DHT22 | HC-SR04 | MAX9814 | LCD   │
     │      Génération des trajectoires    │
     └─────────────────────────────────────┘
@@ -77,25 +78,27 @@ Harmonographe-/
 ## Démarrage rapide
 
 ### 1. Matériel requis (résumé)
-- Shapeoko 3 (ou 4) — base CNC
-- Arduino Mega 2560 × 2 (un pour GRBL, un pour les capteurs)
+- **Shapeoko 2** — base CNC (zone de travail 300×300mm)
+- Arduino Uno + gShield (GRBL, déjà intégré dans la Shapeoko 2)
+- Arduino Mega 2560 × 1 (pour les capteurs et la génération de courbes)
 - Aimant néodyme N52 Ø50mm × 20mm
 - Capteurs : DHT22, HC-SR04, MAX9814
 - Bille d'acier Ø19mm (3/4")
-- Bac à sable 400×400mm en acrylique 3mm
+- Bac à sable 250×250mm en acrylique 3mm
 
 ### 2. Installation firmware
 ```bash
-# Arduino 1 (Shapeoko) — flasher GRBL v1.1
+# Arduino 1 (Shapeoko 2 — Arduino Uno + gShield) — flasher GRBL v1.1
 # (via Arduino IDE avec la bibliothèque GRBL)
+# Moteurs NEMA 17 — régler le courant à 1.5A (Vref = 1.2V sur DRV8825)
 
-# Arduino 2 (Capteurs) — flasher le firmware harmonographe
+# Arduino 2 (Capteurs — Arduino Mega 2560) — flasher le firmware harmonographe
 # Ouvrir firmware/harmonographe_capteurs/harmonographe_capteurs.ino
 # Installer les bibliothèques : DHT, NewPing, AccelStepper
 ```
 
 ### 3. Connexion
-- Relier RX/TX de l'Arduino Capteurs au TX/RX du Shapeoko (via niveau logique 5V→5V)
+- Relier RX/TX de l'Arduino Capteurs au TX/RX du Shapeoko 2 (niveau logique 5V→5V direct)
 - Alimenter séparément : 24V pour les moteurs, 5V USB pour l'Arduino capteurs
 
 ---

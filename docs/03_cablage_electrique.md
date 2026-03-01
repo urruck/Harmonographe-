@@ -68,24 +68,24 @@ Option B — Régulateur LM7805 depuis 12V :
 
 ## 3. Câblage des moteurs Shapeoko
 
-La Shapeoko utilise des moteurs NEMA 23 (ou NEMA 17 selon version) câblés sur le contrôleur d'origine. **Ne pas modifier ce câblage**.
+La Shapeoko 2 utilise des moteurs **NEMA 17** câblés sur le contrôleur d'origine (Arduino Uno + gShield). **Ne pas modifier ce câblage**.
 
 ```
-Shapeoko Board
+gShield (sur Arduino Uno)
 ┌────────────────────────────────┐
-│  X_STEP  X_DIR  X_EN          │──→ Moteur X (1 moteur)
-│  Y_STEP  Y_DIR  Y_EN          │──→ Moteur Y1 + Y2 (en parallèle)
+│  X_STEP  X_DIR  X_EN          │──→ Moteur X NEMA 17 (1 moteur)
+│  Y_STEP  Y_DIR  Y_EN          │──→ Moteur Y1 + Y2 NEMA 17 (en parallèle)
 │  Z_STEP  Z_DIR  Z_EN          │──→ (non utilisé — Z fixe)
 │  +24V  GND                    │──→ Alimentation moteurs
-│  RX    TX                     │──→ Arduino #2 (croisé)
+│  RX0   TX0                    │──→ Arduino Mega #2 (croisé)
 └────────────────────────────────┘
 ```
 
-**Courant moteur NEMA 23 :** Régler les DRV8825 à 2A/phase (vis de réglage Vref = 0.4V pour 2A).
+**Courant moteur NEMA 17 (Shapeoko 2) :** Régler les DRV8825 du gShield à **1.5A/phase**.
 
 **Formule :** `Vref = I_moteur × 0.1 × 8 = I_moteur × 0.8`
-- Pour 2A : Vref = 1.6V
-- Pour 1.5A : Vref = 1.2V
+- Pour 1.5A : Vref = 1.2V (réglage recommandé Shapeoko 2)
+- Pour 2A : Vref = 1.6V (ne pas dépasser — surchauffe moteurs NEMA 17)
 
 ---
 
@@ -162,8 +162,8 @@ GND ─────────────────────────�
 ## 5. Liaison série Arduino #2 ↔ Arduino #1 (GRBL)
 
 ```
-Arduino Mega #2                 Arduino Mega #1 (GRBL)
-(Capteurs)                      (Shapeoko)
+Arduino Mega #2                 Arduino Uno + gShield (GRBL)
+(Capteurs)                      (Shapeoko 2)
 
 Pin 18 (TX1) ─────────────────→ RX (Pin 0)
 Pin 19 (RX1) ←───────────────── TX (Pin 1)
@@ -172,7 +172,10 @@ GND ─────────────────────────�
 Configuration série :
 - Baud rate : 115200
 - Format : 8N1
-- Niveau : 5V TTL (compatible direct entre Mega)
+- Niveau : 5V TTL (compatible direct Uno ↔ Mega)
+
+⚠️ ATTENTION : Pendant le téléversement du sketch sur l'Uno,
+   débrancher le câble RX/TX (Pin 0/1) pour éviter les conflits.
 ```
 
 > **⚠️ IMPORTANT** : Ne jamais connecter TX→TX ou RX→RX. La liaison est croisée : TX→RX et RX→TX.
