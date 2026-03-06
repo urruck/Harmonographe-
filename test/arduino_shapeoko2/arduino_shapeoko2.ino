@@ -32,10 +32,9 @@
  *   LOG <message>
  */
 
-// ─── Modules du firmware principal ───────────────────────────────────────
-// On réutilise directement les algorithmes du firmware principal
-#include "../../firmware/harmonographe_capteurs/curves.h"
-#include "../../firmware/harmonographe_capteurs/gcode_sender.h"
+// ─── Modules du firmware principal (copies locales, sans dépendances LCD) ─
+#include "curves.h"
+#include "gcode_sender.h"
 
 // ─── États de la machine ─────────────────────────────────────────────────
 enum MachineMode {
