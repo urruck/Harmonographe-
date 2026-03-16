@@ -196,13 +196,11 @@ bool grbl_home() {
  * y ∈ [-MACHINE_RADIUS, +MACHINE_RADIUS]
  */
 bool grbl_move_to(float x, float y, float feedrate) {
-    // Conversion : centre du bac = (0,0) → coordonnées machine
-    float machX = x + WORK_OFFSET_X;
-    float machY = y + WORK_OFFSET_Y;
-
-    // Sécurité : limiter aux dimensions du bac (Shapeoko 2 = 300×300mm)
-    machX = constrain(machX, 5.0f, 295.0f);
-    machY = constrain(machY, 5.0f, 295.0f);
+    // Le WCS est déjà configuré par grbl_home() (G10 L20 : centre = 0,0).
+    // On envoie directement les coordonnées de travail sans ré-ajouter
+    // WORK_OFFSET (sinon double décalage : machine sort de la zone).
+    float machX = constrain(x, -(WORK_OFFSET_X - 5.0f), WORK_OFFSET_X - 5.0f);
+    float machY = constrain(y, -(WORK_OFFSET_Y - 5.0f), WORK_OFFSET_Y - 5.0f);
 
     // Formater la ligne G-code
     // Format : "G1 X123.456 Y-89.123 F1234\n"
@@ -246,12 +244,15 @@ bool grbl_send_circle_test(float radius, float feedrate) {
     delay(500);
 
     // Tracer le cercle avec des arcs G2 (sens horaire)
+    // En coordonnées de travail (centre = 0,0) :
+    // départ = (radius, 0), centre du cercle = (0,0)
+    // I/J = offset depuis le départ vers le centre → I=-radius, J=0
     snprintf(g_grblLineBuffer, sizeof(g_grblLineBuffer),
              "G2 X%.3f Y%.3f I%.3f J%.3f F%.0f",
-             WORK_OFFSET_X + radius,  // Point final = point de départ
-             WORK_OFFSET_Y,
-             -radius,                 // Centre relatif
-             0.0f,
+             radius,    // Point final X = point de départ (cercle complet)
+             0.0f,      // Point final Y
+             -radius,   // I = centre_X - départ_X = 0 - radius
+             0.0f,      // J = centre_Y - départ_Y = 0 - 0
              feedrate);
     return grbl_send_line(g_grblLineBuffer);
 }
